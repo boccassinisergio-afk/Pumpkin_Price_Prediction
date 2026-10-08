@@ -1,11 +1,22 @@
 import pandas as pd
-import seaborn as sns
 import numpy as np
 from datetime import datetime
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.pipeline import make_pipeline
+
+def results(random_state, X, y):
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=random_state)
+    model = LinearRegression()
+    model.fit(X_train, y_train)
+    linear_score = model.score(X_test, y_test)
+    
+    poly = make_pipeline(PolynomialFeatures(2), LinearRegression())
+    poly.fit(X_train, y_train)
+    poly_score = poly.score(X_test, y_test)
+    
+    return linear_score, poly_score
 
 pumpkins = pd.read_csv('pumpkins.csv')
 
@@ -48,23 +59,12 @@ scores = {'linear_regression_standard':[], 'polynomial_regression_standard':[], 
 }
 
 for random_state in range(40):
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=random_state)
-    model = LinearRegression()
-    model.fit(X_train, y_train)
-    scores['linear_regression_standard'].append(model.score(X_test, y_test))
-    
-    poly = make_pipeline(PolynomialFeatures(2), LinearRegression())
-    poly.fit(X_train, y_train)
-    scores['polynomial_regression_standard'].append(poly.score(X_test, y_test))
-    
-    X_train, X_test, y_train, y_test = train_test_split(X_mod, y_mod, test_size=0.33, random_state=random_state)
-    model = LinearRegression()
-    model.fit(X_train, y_train)
-    scores['linear_regression_mod'].append(model.score(X_test, y_test))
-    
-    poly = make_pipeline(PolynomialFeatures(2), LinearRegression())
-    poly.fit(X_train, y_train)
-    scores['polynomial_regression_mod'].append(poly.score(X_test, y_test))
+    linear, polyn = results(random_state, X, y)
+    scores['linear_regression_standard'].append(linear)
+    scores['polynomial_regression_standard'].append(polyn)
+    linear_mod, polyn_mod = results(random_state, X_mod, y_mod)
+    scores['linear_regression_mod'].append(linear_mod)
+    scores['polynomial_regression_mod'].append(polyn_mod)
 
 for name, values in scores.items():
     std = np.std(values)
