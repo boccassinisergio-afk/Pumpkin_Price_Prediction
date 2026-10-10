@@ -6,6 +6,9 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import PolynomialFeatures
 from sklearn.pipeline import make_pipeline
 
+pd.set_option('display.max_columns', None)
+pd.set_option('display.width', 250)
+
 pumpkins = pd.read_csv('pumpkins.csv')
 
 print(pumpkins.head())
